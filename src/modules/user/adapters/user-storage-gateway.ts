@@ -109,8 +109,55 @@ export class UserStorageGateway implements IUserRepository {
     return user
   }
 
-  save(user: User): Promise<User> {
-    throw new Error('Method not implemented.')
+  async save(user: User): Promise<User> {
+    const personQuery = `
+      INSERT INTO public.people (
+        name,
+        surname,
+        lastname,
+        birthdate,
+        curp,
+        rfc
+      )
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id
+    `
+    const userQuery = `
+      INSERT INTO public.users (
+        username,
+        password,
+        user_details,
+        type,
+        status_id,
+        person_id
+      )
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id
+    `
+    
+    const { rows: personRows } = await pool.query(personQuery, [
+      user.person?.name,
+      user.person?.surname,
+      user.person?.lastname,
+      user.person?.birthdate,
+      user.person?.curp,
+      user.person?.rfc
+    ])
+
+    user.person!.id = personRows[0].id
+
+    const { rows: userRows } = await pool.query(userQuery, [
+      user.username,
+      user.password,
+      user.userDetails,
+      user.type,
+      user.status?.id,
+      user.person?.id
+    ])
+
+    const id = userRows[0].id
+
+    return await this.findById(id)
   }
 
   update(user: User): Promise<User> {

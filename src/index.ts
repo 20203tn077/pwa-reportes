@@ -1,4 +1,4 @@
-import app from "./config/express"
+import app from './config/express'
 
 const port = process.env.PORT ?? 3000
 try {
@@ -6,6 +6,3 @@ try {
 } catch (e) {
   console.log(e)
 }
-
-console.log(process.env.JWT_SECRET)
-console.log(process.env.CRYPTO_KEY)

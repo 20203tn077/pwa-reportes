@@ -6,6 +6,6 @@ export type Person = Entity<number> & {
   lastname?: string
   birthdate?: Date
   curp?: string
-  rcf?: string
+  rfc?: string
   createdAt?: Date
 }
