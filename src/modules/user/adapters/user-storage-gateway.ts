@@ -1,30 +1,112 @@
-import { pool } from 'config/postgres'
+import { Status } from '../../../kernel/types'
+import { pool } from '../../../config/postgres'
 import { User } from '../entities/user'
 import { IUserRepository } from '../use-cases/ports/user.repository'
+import { Person } from '../entities/person'
 
 export class UserStorageGateway implements IUserRepository {
   async findAll(): Promise<User[]> {
     const query = `
-    SELECT 
-      id,
-      username,
-      created_at as "createdAt",
-      last_signin as "lastSignIn",
-      s.id as "statusId"
-      s.description as "statusDescription",
-      r.description as "role",
-      p.name,
-      p.surname,
-      p.lastname
-    FROM users
-    ORDER BY
-      FROM user ORDER BY id DESC`
-    const { rows: userRows} = await pool.query(query)
-    return userRows.map(user => <User> user)
+      SELECT
+        u.id,
+        u.username,
+        u.password,
+        u.user_details as "userDetails",
+        u.type,
+        s.id as "statusId",
+        s.status as "statusStatus",
+        p.id as "personId",
+        p.name as "personName",
+        p.surname as "personSurname",
+        p.lastname as "personLastname",
+        p.birthdate as "personBirthdate",
+        p.curp as "personCurp",
+        p.rfc as "personRfc",
+        p.created_at as "personCreatedAt"
+      FROM public.users u
+      INNER JOIN public.statuses s ON u.status_id = s.id
+      INNER JOIN public.people p ON u.person_id = p.id
+      `
+    const { rows } = await pool.query(query)
+    return rows.map(row => {
+      const status: Status = (({
+        statusId: id,
+        statusStatus: status
+      }) => ({ id, status }))(row)
+
+      const person: Person = (({
+        personId: id,
+        personName: name,
+        personSurname: surname,
+        personLastname: lastname,
+        personBirthdate: birthdate,
+        personCurp: curp,
+        personRfc: rfc,
+        personCreatedAt: createdAt,
+      }) => ({ id, name, surname, lastname, birthdate, curp, rfc, createdAt }))(row)
+
+      const user: User = (({
+        id,
+        username,
+        password,
+        userDetails,
+        type
+      }) => ({ id, username, password, userDetails, type, status, person }))(row)
+
+      return user
+    })
   }
 
-  findById(): Promise<User> {
-    throw new Error('Method not implemented.')
+  async findById(id: number): Promise<User> {
+    const query = `
+      SELECT
+        u.id,
+        u.username,
+        u.password,
+        u.user_details as "userDetails",
+        u.type,
+        s.id as "statusId",
+        s.status as "statusStatus",
+        p.id as "personId",
+        p.name as "personName",
+        p.surname as "personSurname",
+        p.lastname as "personLastname",
+        p.birthdate as "personBirthdate",
+        p.curp as "personCurp",
+        p.rfc as "personRfc",
+        p.created_at as "personCreatedAt"
+      FROM public.users u
+      INNER JOIN public.statuses s ON u.status_id = s.id
+      INNER JOIN public.people p ON u.person_id = p.id
+      WHERE u.id = $1
+      `
+    const { rows } = await pool.query(query, [id])
+    const row = rows[0]
+    const status: Status = (({
+      statusId: id,
+      statusStatus: status
+    }) => ({ id, status }))(row)
+
+    const person: Person = (({
+      personId: id,
+      personName: name,
+      personSurname: surname,
+      personLastname: lastname,
+      personBirthdate: birthdate,
+      personCurp: curp,
+      personRfc: rfc,
+      personCreatedAt: createdAt,
+    }) => ({ id, name, surname, lastname, birthdate, curp, rfc, createdAt }))(row)
+
+    const user: User = (({
+      id,
+      username,
+      password,
+      userDetails,
+      type
+    }) => ({ id, username, password, userDetails, type, status, person }))(row)
+
+    return user
   }
 
   save(user: User): Promise<User> {

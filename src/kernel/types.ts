@@ -16,7 +16,7 @@ export type Json = Record<string, any>
 export type JsonArray = Json[]
 
 export type Status = Entity<number> & {
-  description?: string
+  status: string
 }
 
 

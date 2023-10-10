@@ -1,4 +1,4 @@
-import { Request, Response } from 'express'
+import { Request, Response, Router } from 'express'
 import { GetAllUsersInteractor } from '../use-cases/get-all-users.interactor'
 import { UserStorageGateway } from './user-storage-gateway'
 
@@ -11,11 +11,11 @@ export class UserController {
       res.status(200).json(users)
     } catch (e) {
       console.log(e)
-      
-      
+      res.status(500).json({ message: e })
     }
   }
 }
-export 
 
-userRouter.get('/')
+export const userRouter = Router()
+
+userRouter.get('/', [], UserController.getAll)

@@ -1,14 +1,11 @@
-import { application } from 'express'
+import app from "./config/express"
 
 const port = process.env.PORT ?? 3000
-
-function main() {
-  try {
-    application.listen(port)
-    console.log(`Esta wea está corriendo en http://localhost:${port} :p`)
-  } catch (e) {
-    console.log(e)
-  }
+try {
+  app.listen(port, () => console.log(`Server running at http://localhost:${port}`))
+} catch (e) {
+  console.log(e)
 }
 
-main()
+console.log(process.env.JWT_SECRET)
+console.log(process.env.CRYPTO_KEY)
