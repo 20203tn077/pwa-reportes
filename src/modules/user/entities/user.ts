@@ -1,10 +1,10 @@
-import { Entity, Status } from '../../../kernel/types'
+import { Entity, Json, Status } from '../../../kernel/types'
 import { Person } from './person'
 
 export type User = Entity<number> & {
   username: string
   password?: string
-  userDetails: object
+  userDetails: Json
   type: number
   status?: Status
   person?: Person

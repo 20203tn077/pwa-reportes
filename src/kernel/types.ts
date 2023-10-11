@@ -20,7 +20,7 @@ export type Status = Entity<number> & {
 }
 
 
-export enum Error {
+export enum Errors {
   MISSING_FIELDS = 'Missing fields',
   RECORD_NOT_REGISTERED = 'Record not registered',
   RECORD_NOT_UPDATED = 'Record not updated',
